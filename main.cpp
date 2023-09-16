@@ -1,92 +1,51 @@
 #include <iostream>
-#include <cmath>
+struct Node
+{
+    int data;
+    Node* next;
+};
 
-void insertionSort(int arr[], int n) {
-    int i, j, cur;
-    for (i = 1; i<n; i++) {
-        cur = arr[i];
-        j=i-1;
-        while (j>=0 && arr[j] > cur) {
-            arr[j+1]=arr[j];
-            --j;
-        }
-    arr[j]=cur;
-    }
+struct LinkedList
+{
+    Node* root = nullptr;
+    void push(int data);
+    void print();
+    int pop();
+};
+
+void LinkedList::push(int data) {
+        Node *node = new Node;
+        node->data = data;
+        node->next = this->root;
+        this->root = node;
 }
 
-void merge(int arr[], int left, int mid, int right) {
-    int n1 = mid - left + 1;
-    int n2 = right - mid;
-
-    int L[n1], R[n2];
-
-    for (int i = 0; i < n1; i++)
-        L[i] = arr[left + i];
-    for (int j = 0; j < n2; j++)
-        R[j] = arr[mid + 1 + j];
-
-    int i = 0;
-    int j = 0;
-    int k = left;
-
-    while (i < n1 && j < n2) {
-        if (L[i] <= R[j]) {
-            arr[k] = L[i];
-            i++;
-        }
-        else {
-            arr[k] = R[j];
-            j++;
-        }
-        k++;
+int LinkedList::pop() {
+    if (this->root != nullptr) {
+        int nodeData = this->root->data;
+        Node *temp = this->root;
+        this->root = this->root->next;
+        delete temp;
+        return nodeData;
     }
-
-    while (i < n1) {
-        arr[k] = L[i];
-        i++;
-        k++;
-    }
-
-    while (j < n2) {
-        arr[k] = R[j];
-        j++;
-        k++;
-    }
+    else return 0;
 }
 
-void mergeSort(int arr[], int left, int right) {
-    if (left < right) {
-        int mid = left + (right - left) / 2;
-
-        mergeSort(arr, left, mid);
-        mergeSort(arr, mid + 1, right);
-
-        merge(arr, left, mid, right);
+void LinkedList::print() {
+    Node *pos = this->root;
+    while (pos != nullptr)
+    {
+        std::cout<<pos->data;
+        pos = pos->next;
     }
 }
-
-
-void hybridSort(int arr[], int n) {
-    if (n<=10) mergeSort(arr, 0, n);
-    else insertionSort(arr, n);
-}
-
-void xorSwap(int& a, int& b) {
-    a ^= b;
-    b ^= a;
-    a ^= b;
-}
-
-
-int fibonacci(int n) {
-    if (n <= 1) {
-        return n;
-    }
-    return fibonacci(n-1) + fibonacci(n-2);
-}
-
 
 int main() {
-    std::cout<<"program is done";
+    LinkedList *linkedList = new LinkedList;
+    linkedList->push(1);
+    linkedList->push(2);
+    std::cout<<linkedList->pop() << std::endl;
+    linkedList->print();
+    delete linkedList;
     return 0;
 }
