@@ -10,7 +10,9 @@ private:
     T* current;
 public:
 
-    //Iterator(*T){};
+    Iterator(T* pos){
+        current = pos;
+    };
     void * operator++(){
         current=*(current+1);
     };
@@ -61,8 +63,26 @@ public:
         }
 
     void sort() {
+        int left = 0; int right = num_elem-1;
+        int i = left, j = right;
+        int pivot = data[(left + right) / 2];
 
-    };
+        while (i <= j) {
+            while (data[i] < pivot)
+                i++;
+            while (data[j] > pivot)
+                j--;
+            if (i <= j) {
+                std::swap(data[i], data[j]);
+                i++;
+                j--;
+            }
+        }
 
-#begin возвращает итератор, end тоже
+        if (left < j)
+            quicksort(data, left, j);
+        if (i < right)
+            quicksort(data, i, right);
+    }
+
 };
