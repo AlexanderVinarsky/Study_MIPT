@@ -1,5 +1,4 @@
 #pragma once
-//#include "LinkedList.h"
 
 class Vector3D {
 private:
@@ -14,7 +13,6 @@ public:
     Vector3D operator-(Vector3D other);
     double abs();
     void print();
-    //LinkedList toList();
 
     void setCoord(int pos, double a) {
         body[pos] = a;

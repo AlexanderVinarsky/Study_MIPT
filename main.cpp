@@ -1,67 +1,157 @@
 #include <iostream>
-#include <cmath>
+#include <string>
+#include <vector>
+#include <list>
 
-class Shape {
+using namespace std;
+
+// Класс абстрактный элемент
+class AbstractElement {
 public:
-    virtual double area()=0;
-    virtual std::string name()=0;
+    string txt;
+    virtual string getType() {return "AbstractElement";};
 };
 
-class Triangle : public Shape {
-private:
-    double a;
-    double b;
-    double c;
+// Класс картинка, которая является элементом
+class Image: public AbstractElement {
 public:
-    double area() {
-        double p = (a+b+c)/2;
-        return p*(p-a)*(p-b)*(p-c);
-    };
-    std::string name() {return "Triangle";}
-    Triangle(double sideA, double sideB, double sideC) : a(sideA), b(sideB), c(sideC) {};
-};
-
-class Rectangle : public Shape {
-private:
-    double a;
-    double b;
-public:
-    double area() {
-        return a*b;
-    };
-    std::string name() {return "Rectangle";}
-    Rectangle(double sideA, double sideB) : a(sideA), b(sideB) {};
-};
-
-class Circle : public Shape {
-private:
-    double r;
-public:
-    double area() {
-        return (3.1415926535*pow(r,2));
-    };
-    std::string name() {return "Circle";}
-    Circle(double radius) : r(radius) {};
-};
-
-std::ostream & operator<<(std::ostream &stream, Shape * s){
-    stream << s->name();
-    return stream;
-}
-
-int main(){
-    Shape *data[3];
-    data[0] = new Triangle(3, 4, 5);
-    data[1] = new Rectangle(6 ,8);
-    data[2] = new Circle(5);
-
-    for(int i = 0; i < 3; ++i){
-        std::cout << data[i] << std::endl;
+    explicit Image(string txt) {
+        this->txt = txt;
     }
-    double s = 0;
-    for(int i = 0; i < 3; ++i){
-        s += data[i]->area();
+
+    string getType() {
+        return type;
     }
-    std::cout << "summ area is " << s << std::endl;
-    return 0;
+private:
+    string type = "Image";
+};
+
+// Класс текста, которая является элементом
+class Text: public AbstractElement {
+public:
+    explicit Text(string txt, bool isBold = false) {
+        this->isBold = isBold;
+        this->txt = txt;
+    }
+
+    string getType() {
+        return type;
+    }
+private:
+    string type = "Text";
+    bool isBold;
+};
+
+// Класс главы
+class Chapter {
+public:
+    vector <AbstractElement*> elements;
+    Chapter(string caption) {
+        this->caption = caption;
+    }
+    void add(AbstractElement* element) {
+        elements.push_back(element);
+    }
+
+    string caption;
+};
+
+// Класс абстрактного отчёта
+class AbstractReport{
+protected:
+    vector<Chapter> chapters;
+public:
+    void add(Chapter chapter) {
+        chapters.push_back(chapter);
+    }
+};
+
+// Класс MarkDown отчёта, наследник абстрактного
+class MDReport: public AbstractReport {
+public:
+    MDReport() {
+        this->chapters = *new vector<Chapter>;
+    }
+
+    string getResult(){
+        string res = "";
+        for (int i = 0; i<chapters.size(); i++) {
+            res += "#" + chapters[i].caption + "\n";
+            for (int j = 0; j<chapters[i].elements.size(); j++) {
+                //cout << chapters[i].elements[j]->txt;
+                if (chapters[i].elements[j]->getType() == "Text") {
+                    res+= chapters[i].elements[j]->txt + "\n";
+                }
+                else {
+                    res += "![Alt text](" + chapters[i].elements[j]->txt + ")\n";
+                }
+
+            }
+            res+="\n";
+        } return res;
+    }
+};
+
+// Класс RST отчёта, наследник абстрактного
+class RSTReport: public AbstractReport {
+public:
+    RSTReport() {
+        this->chapters = *new vector<Chapter>;
+    }
+
+    string getResult(){
+        string res = "";
+        for (int i = 0; i<chapters.size(); i++) {
+            res += "#" + chapters[i].caption + "\n";
+            for (int j = 0; j<chapters[i].elements.size(); j++) {
+                //cout << chapters[i].elements[j]->txt;
+                if (chapters[i].elements[j]->getType() == "Text") {
+                    res+= chapters[i].elements[j]->txt + "\n";
+                }
+                else {
+                    res += ".. image::" + chapters[i].elements[j]->txt + "\n";
+                }
+
+            }
+            res+="\n";
+        } return res;
+    }
+};
+
+//Класс Абстрактная Фабрика - паттерн программирования
+class AbstractFactory {
+protected:
+    string txt = "";
+};
+
+//Класс MarkDown Фабрики, наследник абстрактной фабрики
+class MDFactory : public AbstractFactory {
+public:
+    MDReport make_report() {
+        return MDReport();
+    }
+};
+
+//Класс RST Фабрики, наследник абстрактной фабрики
+class RSTFactory : public AbstractFactory {
+public:
+    RSTReport make_report() {
+        return RSTReport();
+    }
+};
+
+int main() {
+    auto F = MDFactory(); //Заменить на auto F = RSTFactory(); и работает так же, но выдаёт файл для RST
+    auto R = F.make_report();
+    Chapter C1 = Chapter("Introduction");
+    Chapter C2 = Chapter("Part 1");
+    Text T1 = Text("Blah Blah Blah Blah Blah Blah Blah.", false);
+    Image T2 = Image("Oink oink oink");
+    C1.add(&T1);
+    C1.add(&T2);
+    C2.add(&T1);
+    C2.add(&T2);
+    R.add(C1);
+    R.add(C2);
+    cout << R.getResult();
 }
